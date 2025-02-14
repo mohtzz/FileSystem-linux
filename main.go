@@ -18,42 +18,49 @@ type FileInfo struct {
 }
 
 func main() {
-	dirPath := flag.String("root", "", "choose a directory")
-	sortType := flag.String("sort", "", "choose a type of sort (asc or desc)")
-	flag.Parse()
-
-	if *dirPath == "" {
-		fmt.Println("не указана директория")
-		return
-	}
-
-	if *sortType != "asc" && *sortType != "desc" {
-		fmt.Println("неправильно указан тип сортировки. Используйте 'asc' или 'desc'")
+	dirPath, sortType, err := parseFlags()
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
 	// Собираем информацию о файлах и директориях
-	fileList, err := listDirByReadDir(*dirPath)
+	fileList, err := listDirByReadDir(dirPath)
 	if err != nil {
 		fmt.Println("ошибка чтения:", err)
 		return
 	}
 
 	// Сортируем список
-	sortFileList(fileList, *sortType)
+	sortFileList(fileList, sortType)
 
 	// Выводим отсортированный список
 	for _, file := range fileList {
 		if file.IsDir {
 			fmt.Printf("folder [%s] ", file.Name)
 			fmt.Println(convertSize(file.Size))
-			// fmt.Printf("folder [%s] %d\n", file.Name, file.Size)
 		} else {
 			fmt.Printf("file %s ", file.Name)
 			fmt.Println(convertSize(file.Size))
-			// fmt.Printf("file %s %d\n", file.Name, file.Size)
 		}
 	}
+}
+
+// Функция для обработки флагов и их проверки
+func parseFlags() (string, string, error) {
+	dirPath := flag.String("root", "", "choose a directory")
+	sortType := flag.String("sort", "", "choose a type of sort (asc or desc)")
+	flag.Parse()
+
+	if *dirPath == "" {
+		return "", "", fmt.Errorf("не указана директория")
+	}
+
+	if *sortType != "asc" && *sortType != "desc" {
+		return "", "", fmt.Errorf("неправильно указан тип сортировки. Используйте 'asc' или 'desc'")
+	}
+
+	return *dirPath, *sortType, nil
 }
 
 // Функция для рекурсивного обхода директории и сбора информации

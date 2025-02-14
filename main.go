@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"sync"
+	"time"
 )
 
 // Структура для хранения информации о файле/директории
@@ -18,6 +20,8 @@ type FileInfo struct {
 }
 
 func main() {
+
+	startTime := time.Now()
 	dirPath, sortType, err := parseFlags()
 	if err != nil {
 		fmt.Println(err)
@@ -44,6 +48,9 @@ func main() {
 			fmt.Println(convertSize(file.Size))
 		}
 	}
+
+	elapsedTime := time.Since(startTime)
+	fmt.Printf("Время выполнения программы: %s\n", elapsedTime)
 }
 
 // Функция для обработки флагов и их проверки
@@ -66,6 +73,8 @@ func parseFlags() (string, string, error) {
 // Функция для рекурсивного обхода директории и сбора информации
 func listDirByReadDir(path string) ([]FileInfo, error) {
 	var fileList []FileInfo
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 
 	// Читаем содержимое текущей директории
 	filesAndDirs, err := ioutil.ReadDir(path)
@@ -75,30 +84,40 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 	}
 
 	for _, val := range filesAndDirs {
-		newPath := filepath.Join(path, val.Name())
-		fileInfo := FileInfo{
-			Name:  val.Name(),
-			IsDir: val.IsDir(),
-			Path:  newPath, // Сохраняем полный путь
-		}
-
-		if val.IsDir() {
-			// Для директорий вычисляем размер рекурсивно
-			fileInfo.Size = getDirSize(newPath)
-			// Рекурсивно обходим вложенные директории
-			nestedFiles, err := listDirByReadDir(newPath)
-			if err != nil {
-				return nil, err
+		wg.Add(1)
+		go func(val os.FileInfo) {
+			defer wg.Done()
+			newPath := filepath.Join(path, val.Name())
+			fileInfo := FileInfo{
+				Name:  val.Name(),
+				IsDir: val.IsDir(),
+				Path:  newPath,
 			}
-			fileList = append(fileList, nestedFiles...)
-		} else {
-			// Для файлов берем размер напрямую
-			fileInfo.Size = val.Size()
-		}
 
-		fileList = append(fileList, fileInfo)
+			if val.IsDir() {
+				// Для директорий вычисляем размер рекурсивно
+				size := getDirSize(newPath)
+				fileInfo.Size = size
+				// Рекурсивно обходим вложенные директории
+				nestedFiles, err := listDirByReadDir(newPath)
+				if err != nil {
+					return
+				}
+				mu.Lock()
+				fileList = append(fileList, nestedFiles...)
+				mu.Unlock()
+			} else {
+				// Для файлов берем размер напрямую
+				fileInfo.Size = val.Size()
+			}
+
+			mu.Lock()
+			fileList = append(fileList, fileInfo)
+			mu.Unlock()
+		}(val)
 	}
 
+	wg.Wait()
 	return fileList, nil
 }
 

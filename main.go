@@ -169,6 +169,7 @@ func convertSize(size int64) (float64, string) {
 	floatSize := float64(size)
 	counter := 0
 	var value string
+
 	for {
 		if floatSize >= 1000 {
 			floatSize = floatSize / 1000

@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-// Структура для хранения информации о файле/директории
+// FileInfo - структура для хранения информации о файле/директории.
 type FileInfo struct {
 	Name  string
 	Size  int64
 	IsDir bool
-	Path  string // Добавляем путь для корректного отображения вложенных элементов
+	Path  string // Добавляем путь для корректного отображения вложенных элементов.
 }
 
 func main() {
@@ -28,17 +28,17 @@ func main() {
 		return
 	}
 
-	// Собираем информацию о файлах и директориях
+	// Собираем информацию о файлах и директориях.
 	fileList, err := listDirByReadDir(dirPath)
 	if err != nil {
 		fmt.Println("ошибка чтения:", err)
 		return
 	}
 
-	// Сортируем список
+	// Сортируем список.
 	sortFileList(fileList, sortType)
 
-	// Выводим отсортированный список
+	// Выводим отсортированный список.
 	for _, file := range fileList {
 		if file.IsDir {
 			fmt.Printf("folder [%s] ", file.Name)
@@ -53,7 +53,7 @@ func main() {
 	fmt.Printf("Время выполнения программы: %s\n", elapsedTime)
 }
 
-// Функция для обработки флагов и их проверки
+// parseFlags - функция для обработки флагов и их проверки.
 func parseFlags() (string, string, error) {
 	dirPath := flag.String("root", "", "choose a directory")
 	sortType := flag.String("sort", "", "choose a type of sort (asc or desc)")
@@ -70,13 +70,13 @@ func parseFlags() (string, string, error) {
 	return *dirPath, *sortType, nil
 }
 
-// Функция для рекурсивного обхода директории и сбора информации
+// listDirByReadDir - функция для рекурсивного обхода директории и сбора информации.
 func listDirByReadDir(path string) ([]FileInfo, error) {
 	var fileList []FileInfo
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
-	// Читаем содержимое текущей директории
+	// Читаем содержимое текущей директории.
 	filesAndDirs, err := ioutil.ReadDir(path)
 	if err != nil {
 		fmt.Println("ошибка чтения директории:", err)
@@ -95,10 +95,10 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 			}
 
 			if val.IsDir() {
-				// Для директорий вычисляем размер рекурсивно
+				// Для директорий вычисляем размер рекурсивно.
 				size := getDirSize(newPath)
 				fileInfo.Size = size
-				// Рекурсивно обходим вложенные директории
+				// Рекурсивно обходим вложенные директории.
 				nestedFiles, err := listDirByReadDir(newPath)
 				if err != nil {
 					return
@@ -107,7 +107,7 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 				fileList = append(fileList, nestedFiles...)
 				mu.Unlock()
 			} else {
-				// Для файлов берем размер напрямую
+				// Для файлов берем размер напрямую.
 				fileInfo.Size = val.Size()
 			}
 
@@ -121,22 +121,22 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 	return fileList, nil
 }
 
-// Функция для вычисления размера директории
+// getDirSize - функция для вычисления размера директории.
 func getDirSize(path string) int64 {
 	var size int64
 
-	// Рекурсивно обходим все файлы и поддиректории
+	// Рекурсивно обходим все файлы и поддиректории.
 	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if info.IsDir() {
-			// Для каждой директории добавляем 4096 байт (размер метаданных)
+			// Для каждой директории добавляем 4096 байт (размер метаданных).
 			if info.Name() != filepath.Base(path) {
 				size += 4096
 			}
 		} else {
-			// Для файлов добавляем их размер
+			// Для файлов добавляем их размер.
 			size += info.Size()
 		}
 		return nil
@@ -149,14 +149,14 @@ func getDirSize(path string) int64 {
 	return size
 }
 
-// Функция для сортировки списка файлов и директорий
+// sortFileList - функция для сортировки списка файлов и директорий.
 func sortFileList(fileList []FileInfo, sortType string) {
 	/*функция sort.Slice упорядочивает наши файлы с директориями
-	все происходит автоматически, от нас лишь требуется определить функцию сравнения*/
+	все происходит автоматически, от нас лишь требуется определить функцию сравнения.*/
 	sort.Slice(fileList, func(i, j int) bool {
-		/*функция сравнения определяет, какой элемент должен идти первым в отсортированном списке
+		/*func(i, j int) bool - функция сравнения - определяет, какой элемент должен идти первым в отсортированном списке
 		сравнивая элементы при получении true ничего не поменяется - элементы стоят на своих законных местах
-		при получении false функция sort.Slice поменяет элементы местами*/
+		при получении false функция sort.Slice поменяет элементы местами.*/
 		if sortType == "asc" {
 			return fileList[i].Size < fileList[j].Size
 		} else {

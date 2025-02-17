@@ -1,74 +1,64 @@
 package main
 
 import (
-	"flag"
+	"encoding/json"
 	"fmt"
-	"math"
+	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"sync"
-	"time"
 )
 
 // FileInfo - структура для хранения информации о файле/директории.
 type FileInfo struct {
 	Name  string
 	Size  int64
-	Unit  string
 	IsDir bool
 	Path  string
 }
 
 func main() {
-
-	startTime := time.Now()
-	dirPath, sortType, err := parseFlags()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// Собираем информацию о файлах и директориях.
-	fileList, err := listDirByReadDir(dirPath)
-	if err != nil {
-		fmt.Println("ошибка чтения:", err)
-		return
-	}
-
-	// Сортируем список.
-	sortFileList(fileList, sortType)
-
-	// Выводим отсортированный список.
-	for _, file := range fileList {
-		if file.IsDir {
-			fmt.Printf("folder [%s] ", file.Name)
-			fmt.Println(convertSize(file.Size))
-		} else {
-			fmt.Printf("file %s ", file.Name)
-			fmt.Println(convertSize(file.Size))
-		}
-	}
-
-	elapsedTime := time.Since(startTime)
-	fmt.Printf("Время выполнения программы: %s\n", elapsedTime)
+	go startHTTPServer()
+	select {}
 }
 
-// parseFlags - функция для обработки флагов и их проверки.
-func parseFlags() (string, string, error) {
-	dirPath := flag.String("root", "", "choose a directory")
-	sortType := flag.String("sort", "", "choose a type of sort (asc or desc)")
-	flag.Parse()
+func startHTTPServer() {
+	http.HandleFunc("/fs", handleFileSystem)
+	log.Println("Сервер запущен на :9015")
+	if err := http.ListenAndServe(":9015", nil); err != nil {
+		log.Fatalf("ошибка при запуске сервера: %v", err)
+	}
+}
 
-	if *dirPath == "" {
-		return "", "", fmt.Errorf("не указана директория(root)")
+func handleFileSystem(w http.ResponseWriter, r *http.Request) {
+	// Получаем параметры
+	dirPath := r.URL.Query().Get("root")
+	sortType := r.URL.Query().Get("sort")
+
+	if dirPath == "" {
+		http.Error(w, "не указана директория (root)", http.StatusBadRequest)
+		return
+	}
+	if sortType != "asc" && sortType != "desc" {
+		http.Error(w, "неправильно указан тип сортировки. Используйте 'asc' или 'desc'", http.StatusBadRequest)
+		return
 	}
 
-	if *sortType != "asc" && *sortType != "desc" {
-		return "", "", fmt.Errorf("неправильно указан тип сортировки. Используйте 'asc' или 'desc'")
+	// Собираем информацию о файлах и директориях
+	fileList, err := listDirByReadDir(dirPath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("ошибка чтения: %v", err), http.StatusInternalServerError)
+		return
 	}
 
-	return *dirPath, *sortType, nil
+	// Сортируем список
+	sortFileList(fileList, sortType)
+
+	// Отправляем ответ в формате JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(fileList)
 }
 
 // listDirByReadDir - функция для рекурсивного обхода директории и сбора информации.
@@ -162,31 +152,31 @@ func sortFileList(fileList []FileInfo, sortType string) {
 	})
 }
 
-func convertSize(size int64) (float64, string) {
-	floatSize := float64(size)
-	counter := 0
-	var value string
+// func convertSize(size int64) (float64, string) {
+// 	floatSize := float64(size)
+// 	counter := 0
+// 	var value string
 
-	for {
-		if floatSize >= 1000 {
-			floatSize = floatSize / 1000
-			counter += 1
-		} else {
-			break
-		}
-	}
-	roundedSize := math.Round(floatSize*10) / 10
-	switch counter {
-	case 0:
-		value = "байтов"
-	case 1:
-		value = "килобайтов"
-	case 2:
-		value = "мегабайтов"
-	case 3:
-		value = "гигабайтов"
-	case 4:
-		value = "терабайтов"
-	}
-	return roundedSize, value
-}
+// 	for {
+// 		if floatSize >= 1000 {
+// 			floatSize = floatSize / 1000
+// 			counter += 1
+// 		} else {
+// 			break
+// 		}
+// 	}
+// 	roundedSize := math.Round(floatSize*10) / 10
+// 	switch counter {
+// 	case 0:
+// 		value = "байтов"
+// 	case 1:
+// 		value = "килобайтов"
+// 	case 2:
+// 		value = "мегабайтов"
+// 	case 3:
+// 		value = "гигабайтов"
+// 	case 4:
+// 		value = "терабайтов"
+// 	}
+// 	return roundedSize, value
+// }

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -78,7 +78,7 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 	var mu sync.Mutex
 
 	// Читаем содержимое текущей директории.
-	filesAndDirs, err := ioutil.ReadDir(path)
+	filesAndDirs, err := os.ReadDir(path)
 	if err != nil {
 		fmt.Println("ошибка чтения директории:", err)
 		return nil, err
@@ -86,7 +86,7 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 
 	for _, val := range filesAndDirs {
 		wg.Add(1)
-		go func(val os.FileInfo) {
+		go func(val os.DirEntry) {
 			defer wg.Done()
 			newPath := filepath.Join(path, val.Name())
 			fileInfo := FileInfo{
@@ -100,8 +100,12 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 				size := getDirSize(newPath)
 				fileInfo.Size = size
 			} else {
-				// Для файлов берем размер напрямую.
-				fileInfo.Size = val.Size()
+				info, err := val.Info()
+				if err != nil {
+					fmt.Println("ошибка получения информации о файле:", err)
+					return
+				}
+				fileInfo.Size = info.Size()
 			}
 
 			mu.Lock()
@@ -126,7 +130,7 @@ func getDirSize(path string) int64 {
 		if info.IsDir() {
 			// Для каждой директории добавляем 4096 байт (размер метаданных).
 			if info.Name() != filepath.Base(path) {
-				size += 4096
+				size += info.Size()
 			}
 		} else {
 			// Для файлов добавляем их размер.
@@ -171,6 +175,7 @@ func convertSize(size int64) (float64, string) {
 			break
 		}
 	}
+	roundedSize := math.Round(floatSize*10) / 10
 	switch counter {
 	case 0:
 		value = "байтов"
@@ -183,5 +188,5 @@ func convertSize(size int64) (float64, string) {
 	case 4:
 		value = "терабайтов"
 	}
-	return floatSize, value
+	return roundedSize, value
 }

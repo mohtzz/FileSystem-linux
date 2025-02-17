@@ -13,10 +13,11 @@ import (
 
 // FileInfo - структура для хранения информации о файле/директории.
 type FileInfo struct {
-	Name  string
-	Size  int64
-	IsDir bool
-	Path  string // Добавляем путь для корректного отображения вложенных элементов.
+	Name  string `json:"name"`
+	Size  int64  `json:"size"`
+	Unit  string `json:"unit"` // Новое поле для указания в JSON-ответе кб/мб/гб
+	IsDir bool   `json:"isDir"`
+	Path  string `json:"path"` // Добавляем путь для корректного отображения вложенных элементов.
 }
 
 func main() {
@@ -98,14 +99,6 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 				// Для директорий вычисляем размер рекурсивно.
 				size := getDirSize(newPath)
 				fileInfo.Size = size
-				// Рекурсивно обходим вложенные директории.
-				nestedFiles, err := listDirByReadDir(newPath)
-				if err != nil {
-					return
-				}
-				mu.Lock()
-				fileList = append(fileList, nestedFiles...)
-				mu.Unlock()
 			} else {
 				// Для файлов берем размер напрямую.
 				fileInfo.Size = val.Size()

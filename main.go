@@ -61,7 +61,7 @@ func parseFlags() (string, string, error) {
 	flag.Parse()
 
 	if *dirPath == "" {
-		return "", "", fmt.Errorf("не указана директория")
+		return "", "", fmt.Errorf("не указана директория(root)")
 	}
 
 	if *sortType != "asc" && *sortType != "desc" {

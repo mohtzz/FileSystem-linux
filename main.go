@@ -13,11 +13,11 @@ import (
 
 // FileInfo - структура для хранения информации о файле/директории.
 type FileInfo struct {
-	Name  string `json:"name"`
-	Size  int64  `json:"size"`
-	Unit  string `json:"unit"` // Новое поле для указания в JSON-ответе кб/мб/гб
-	IsDir bool   `json:"isDir"`
-	Path  string `json:"path"` // Добавляем путь для корректного отображения вложенных элементов.
+	Name  string
+	Size  int64
+	Unit  string
+	IsDir bool
+	Path  string
 }
 
 func main() {

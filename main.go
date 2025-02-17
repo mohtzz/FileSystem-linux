@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,7 +21,8 @@ import (
 // FileInfo - структура для хранения информации о файле/директории.
 type FileInfo struct {
 	Name  string
-	Size  int64
+	Size  float64
+	Unit  string
 	IsDir bool
 	Path  string
 }
@@ -129,14 +131,14 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 			if val.IsDir() {
 				// Для директорий вычисляем размер рекурсивно.
 				size := getDirSize(newPath)
-				fileInfo.Size = size
+				fileInfo.Size, fileInfo.Unit = convertSize(size)
 			} else {
 				info, err := val.Info()
 				if err != nil {
 					fmt.Println("ошибка получения информации о файле:", err)
 					return
 				}
-				fileInfo.Size = info.Size()
+				fileInfo.Size, fileInfo.Unit = convertSize(float64(info.Size()))
 			}
 
 			mu.Lock()
@@ -150,7 +152,7 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 }
 
 // getDirSize - функция для вычисления размера директории.
-func getDirSize(path string) int64 {
+func getDirSize(path string) float64 {
 	var size int64
 
 	// Рекурсивно обходим все файлы и поддиректории.
@@ -174,7 +176,7 @@ func getDirSize(path string) int64 {
 		return 0
 	}
 
-	return size
+	return float64(size)
 }
 
 // sortFileList - функция для сортировки списка файлов и директорий.
@@ -193,31 +195,34 @@ func sortFileList(fileList []FileInfo, sortType string) {
 	})
 }
 
-// func convertSize(size int64) (float64, string) {
-// 	floatSize := float64(size)
-// 	counter := 0
-// 	var value string
+func convertSize(size float64) (float64, string) {
+	counter := 0
 
-// 	for {
-// 		if floatSize >= 1000 {
-// 			floatSize = floatSize / 1000
-// 			counter += 1
-// 		} else {
-// 			break
-// 		}
-// 	}
-// 	roundedSize := math.Round(floatSize*10) / 10
-// 	switch counter {
-// 	case 0:
-// 		value = "байтов"
-// 	case 1:
-// 		value = "килобайтов"
-// 	case 2:
-// 		value = "мегабайтов"
-// 	case 3:
-// 		value = "гигабайтов"
-// 	case 4:
-// 		value = "терабайтов"
-// 	}
-// 	return roundedSize, value
-// }
+	for {
+		if size >= 1000 {
+			size = size / 1000
+			counter += 1
+		} else {
+			break
+		}
+	}
+	roundedSize := math.Round(size*10) / 10
+	return roundedSize, convertName(counter)
+}
+
+func convertName(counter int) string {
+	var value string
+	switch counter {
+	case 0:
+		value = "байтов"
+	case 1:
+		value = "килобайтов"
+	case 2:
+		value = "мегабайтов"
+	case 3:
+		value = "гигабайтов"
+	case 4:
+		value = "терабайтов"
+	}
+	return value
+}

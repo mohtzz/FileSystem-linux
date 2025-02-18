@@ -41,7 +41,7 @@ func startHTTPServer(addr string) *http.Server {
 	// Запускаем сервер в отдельной горутине.
 	go func() {
 		log.Println("Сервер запущен на", addr)
-		if err := server.ListenAndServe(); err != nil {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Ошибка при запуске сервера: %v", err)
 		}
 	}()

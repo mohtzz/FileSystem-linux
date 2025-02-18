@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"math"
 	"net/http"
@@ -24,10 +24,16 @@ type FileInfo struct {
 	Path  string
 }
 
+// PageData - структура для передачи данных в шаблон.
+type PageData struct {
+	FileList []FileInfo
+	EndTime  string
+}
+
 func main() {
 	port := ":9015"
 	server := startHTTPServer(port)
-	fmt.Printf("Для запуска приложения введите в адресную строку localhost%s/fs?root=/path/to/dir&sort=asc(desc)\n", port)
+	fmt.Printf("Для запуска приложения введите в адресную строку localhost%s\n", port)
 	waitForShutdownSignal(server)
 }
 
@@ -35,8 +41,8 @@ func main() {
 func startHTTPServer(addr string) *http.Server {
 	server := &http.Server{Addr: addr}
 
-	// Регистрируем обработчик для пути "/fs".
-	http.HandleFunc("/fs", handleFileSystem)
+	// Регистрируем обработчик.
+	http.HandleFunc("/", handleFileSystem)
 
 	// Запускаем сервер в отдельной горутине.
 	go func() {
@@ -73,27 +79,56 @@ func waitForShutdownSignal(server *http.Server) {
 	log.Println("Сервер корректно завершил работу.")
 }
 
-// handleFileSystem - функция для обработки http-запросов и отправки JSON-ответа.
 func handleFileSystem(w http.ResponseWriter, r *http.Request) {
-	// Обрабатываем флаги.
+	startTime := time.Now()
+
+	// Проверяем, есть ли параметры в запросе.
 	dirPath, sortType, err := parseFlags(r)
 	if err != nil {
+		// Если параметры не указаны, просто отображаем форму.
+		if dirPath == "" {
+			renderTemplate(w, PageData{})
+			return
+		}
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	// Собираем информацию о файлах и директориях.
 	fileList, err := listDirByReadDir(dirPath)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("ошибка чтения: %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("ошибка чтения пути: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	// Сортируем список.
 	sortFileList(fileList, sortType)
 
-	// Отправляем ответ в формате JSON.
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(fileList)
+	endTime := time.Since(startTime).String()
+
+	// Создаем структуру данных для шаблона.
+	data := PageData{
+		FileList: fileList,
+		EndTime:  endTime,
+	}
+
+	// Отправляем ответ в формате HTML.
+	renderTemplate(w, data)
+}
+
+// renderTemplate - вспомогательная функция для рендеринга HTML-шаблона.
+func renderTemplate(w http.ResponseWriter, data PageData) {
+	templateFile := "index.html"
+	tmpl, err := template.ParseFiles(templateFile)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("ошибка загрузки шаблона: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	if err := tmpl.Execute(w, data); err != nil {
+		http.Error(w, fmt.Sprintf("ошибка при рендеринге шаблона: %v", err), http.StatusInternalServerError)
+	}
 }
 
 // parseFlags - функция для обработки флагов и их проверки.
@@ -204,6 +239,7 @@ func sortFileList(fileList []FileInfo, sortType string) {
 	})
 }
 
+// convertSize - функция для перевода размера в байтах в кб/мб/гб/тб
 func convertSize(size float64) (float64, string) {
 	counter := 0
 	var value string

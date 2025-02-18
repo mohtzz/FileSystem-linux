@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File System</title>
+</head>
+<body>
+    <h1>File System</h1>
+    <form>
+        <label for="root">Путь к директории:</label>
+        <input type="text" id="root" name="root" required>
+        <label for="sort">Тип сортировки:</label>
+        <select id="sort" name="sort">
+            <option value="asc">Возрастание</option>
+            <option value="desc">Убывание</option>
+        </select>
+        <button type="submit">Подтвердить</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Размер</th>
+                <th>Тип</th>
+                <th>Путь</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .FileList}}
+            <tr>
+                <td>{{.Name}}</td>
+                <td>{{.Size}} {{.Unit}}</td>
+                <td>{{if .IsDir}}Директория{{else}}Файл{{end}}</td>
+                <td>{{.Path}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    <p>Время выполнения программы: {{.EndTime}}</p>
+</body>
+</html>

@@ -28,6 +28,8 @@ type FileInfo struct {
 type PageData struct {
 	FileList []FileInfo
 	EndTime  string
+	ErrorMsg string
+	LastPath string
 }
 
 func main() {
@@ -97,7 +99,13 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 	// Собираем информацию о файлах и директориях.
 	fileList, err := listDirByReadDir(dirPath)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("ошибка чтения пути: %v", err), http.StatusInternalServerError)
+		// Заполняем сообщение об ошибке.
+		data := PageData{
+			FileList: nil,
+			EndTime:  time.Since(startTime).String(),
+			ErrorMsg: fmt.Sprintf("Ошибка чтения директории: %v", err),
+		}
+		renderTemplate(w, data)
 		return
 	}
 
@@ -110,6 +118,8 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 	data := PageData{
 		FileList: fileList,
 		EndTime:  endTime,
+		ErrorMsg: "",
+		LastPath: dirPath,
 	}
 
 	// Отправляем ответ в формате HTML.

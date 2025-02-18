@@ -7,6 +7,12 @@
 </head>
 <body>
     <h1>File System</h1>
+    {{if .LastPath}}
+    <p>Последний введенный путь: {{.LastPath}}</p>
+    {{end}}
+    {{if .ErrorMsg}}
+    <p style="color:red;">{{.ErrorMsg}}</p>
+    {{end}}
     <form>
         <label for="root">Путь к директории:</label>
         <input type="text" id="root" name="root" required>

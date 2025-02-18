@@ -17,19 +17,19 @@ import (
 
 // FileInfo - структура для хранения информации о файле/директории.
 type FileInfo struct {
-	Name  string
-	Size  float64
-	Unit  string // Unit - поле для хранения системы счисления размера.
-	IsDir bool
-	Path  string
+	Name  string  // Name - имя файла.
+	Size  float64 // Size - размер файла.
+	Unit  string  // Unit - поле для хранения системы счисления размера.
+	IsDir bool    // IsDir - является ли директорией.
+	Path  string  // Path - поле для перезаписи пути.
 }
 
 // PageData - структура для передачи данных в шаблон.
 type PageData struct {
-	FileList []FileInfo
-	EndTime  string
-	ErrorMsg string
-	LastPath string
+	FileList []FileInfo // FileList - список файлов и директорий.
+	EndTime  string     // EndTime - время выполнения программы.
+	ErrorMsg string     // ErrorMsg - поле для вывода ошибки при неправильно введенной директории.
+	LastPath string     // LastPath - поле для вывода последнего введенного пути.
 }
 
 func main() {

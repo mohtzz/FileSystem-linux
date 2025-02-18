@@ -12,25 +12,22 @@ import (
 	"path/filepath"
 	"sort"
 	"sync"
-	"syscall"
 	"time"
 )
-
-//перевести байты в нужную СИ
 
 // FileInfo - структура для хранения информации о файле/директории.
 type FileInfo struct {
 	Name  string
 	Size  float64
-	Unit  string
+	Unit  string // Unit - поле для хранения системы счисления размера.
 	IsDir bool
 	Path  string
 }
 
 func main() {
-
-	server := startHTTPServer(":9015")
-	fmt.Println("Для запуска приложения введите в адресную строку localhost:9015/fs?root=/path/to/dir&sort=asc(desc)")
+	port := ":9015"
+	server := startHTTPServer(port)
+	fmt.Printf("Для запуска приложения введите в адресную строку localhost%s/fs?root=/path/to/dir&sort=asc(desc)\n", port)
 	waitForShutdownSignal(server)
 }
 
@@ -56,13 +53,15 @@ func startHTTPServer(addr string) *http.Server {
 func waitForShutdownSignal(server *http.Server) {
 	// Создаем канал для получения сигналов от ОС.
 	stopChan := make(chan os.Signal, 1)
-	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(stopChan, os.Interrupt)
 
 	// Ожидаем сигнал для graceful shutdown.
 	<-stopChan
 	log.Println("Получен сигнал для остановки сервера...")
 
-	// Создаем контекст с таймаутом для graceful shutdown.
+	/* Создаем контекст с таймаутом для graceful shutdown.
+	Если после истечения 5 секунд остались какие-то активные запросы
+	или сервер не может завершить работу, то сервер выключается принудительно.*/
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -76,19 +75,12 @@ func waitForShutdownSignal(server *http.Server) {
 
 // handleFileSystem - функция для обработки http-запросов и отправки JSON-ответа.
 func handleFileSystem(w http.ResponseWriter, r *http.Request) {
-	// Получаем параметры.
-	dirPath := r.URL.Query().Get("root")
-	sortType := r.URL.Query().Get("sort")
-
-	if dirPath == "" {
-		http.Error(w, "не указана директория (root)", http.StatusBadRequest)
+	// Обрабатываем флаги.
+	dirPath, sortType, err := parseFlags(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if sortType != "asc" && sortType != "desc" {
-		http.Error(w, "неправильно указан тип сортировки. Используйте 'asc' или 'desc'", http.StatusBadRequest)
-		return
-	}
-
 	// Собираем информацию о файлах и директориях.
 	fileList, err := listDirByReadDir(dirPath)
 	if err != nil {
@@ -102,6 +94,23 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 	// Отправляем ответ в формате JSON.
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(fileList)
+}
+
+// parseFlags - функция для обработки флагов и их проверки.
+func parseFlags(r *http.Request) (string, string, error) {
+	// Получаем параметры.
+	dirPath := r.URL.Query().Get("root")
+	sortType := r.URL.Query().Get("sort")
+
+	if dirPath == "" {
+		return "", "", fmt.Errorf("не указана директория(root)")
+	}
+
+	if sortType != "asc" && sortType != "desc" {
+		return "", "", fmt.Errorf("неправильно указан тип сортировки. Используйте 'asc' или 'desc'")
+	}
+
+	return dirPath, sortType, nil
 }
 
 // listDirByReadDir - функция для обхода директории и сбора информации.
@@ -197,7 +206,7 @@ func sortFileList(fileList []FileInfo, sortType string) {
 
 func convertSize(size float64) (float64, string) {
 	counter := 0
-
+	var value string
 	for {
 		if size >= 1000 {
 			size = size / 1000
@@ -206,12 +215,6 @@ func convertSize(size float64) (float64, string) {
 			break
 		}
 	}
-	roundedSize := math.Round(size*10) / 10
-	return roundedSize, convertName(counter)
-}
-
-func convertName(counter int) string {
-	var value string
 	switch counter {
 	case 0:
 		value = "байтов"
@@ -224,5 +227,6 @@ func convertName(counter int) string {
 	case 4:
 		value = "терабайтов"
 	}
-	return value
+	roundedSize := math.Round(size*10) / 10
+	return roundedSize, value
 }

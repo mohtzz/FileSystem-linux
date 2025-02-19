@@ -81,6 +81,7 @@ func waitForShutdownSignal(server *http.Server) {
 	log.Println("Сервер корректно завершил работу.")
 }
 
+// handleFileSystem - функция-обработчик для работы с файловой системой.
 func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 

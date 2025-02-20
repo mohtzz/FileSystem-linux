@@ -11,7 +11,6 @@ document.getElementById('directoryForm').addEventListener('submit', function(eve
 });
 
 function navigateTo(path) {
-    // navigateTo.preventDefault();
     const sortType = document.getElementById('sort').value;
     fetch('/?root=' + encodeURIComponent(path) + '&sort=' + encodeURIComponent(sortType), {
         method: 'GET'
@@ -22,7 +21,6 @@ function navigateTo(path) {
 }
 
 function goBack() {
-    // goBack.preventDefault();
     const currentPath = document.querySelector('p').innerText.split(': ')[1];
     const parentPath = currentPath.split('/').slice(0, -1).join('/');
     const sortType = document.getElementById('sort').value;
@@ -34,7 +32,6 @@ function goBack() {
       });
 }
 function gotoBegin() {
-    // gotoBegin.preventDefault();
     fetch('/?back=true', {
         method: 'GET'
     }).then(response => response.text())

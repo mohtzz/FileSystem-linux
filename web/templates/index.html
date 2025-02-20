@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File System</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/web/static/style.css">
 </head>
 <body>
     <h1>File System</h1>
@@ -40,8 +40,7 @@
             <tr>
                 <td>
                     {{if .IsDir}}
-                    <!-- # - ссылка никуда не ведет, обновляем текущую страницу -->
-                    <a href="#" onclick="navigateTo('{{.Path}}')">{{.Name}}</a>
+                    <a href="javascript:void(0);" onclick="navigateTo('{{.Path}}')">{{.Name}}</a>
                     {{else}}
                     {{.Name}}
                     {{end}}
@@ -54,6 +53,6 @@
         </tbody>
     </table>
     <p>Время выполнения программы: {{.EndTime}}</p>
-    <script src="/static/script.js"></script>
+    <script src="/web/static/script.js"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@ document.getElementById('directoryForm').addEventListener('submit', function(eve
     }).then(response => response.text())
       .then(html => {
           document.body.innerHTML = html;
+          history.pushState(null, '', '/');
       });
 });
 
@@ -17,6 +18,7 @@ function navigateTo(path) {
     }).then(response => response.text())
       .then(html => {
           document.body.innerHTML = html;
+          history.pushState(null, '', '/');
       });
 }
 
@@ -29,6 +31,7 @@ function goBack() {
     }).then(response => response.text())
       .then(html => {
           document.body.innerHTML = html;
+          history.pushState(null, '', '/');
       });
 }
 function gotoBegin() {
@@ -37,5 +40,6 @@ function gotoBegin() {
     }).then(response => response.text())
       .then(html => {
           document.body.innerHTML = html;
+          history.pushState(null, '', '/');
       });
 }

@@ -43,6 +43,9 @@ func main() {
 func startHTTPServer(addr string) *http.Server {
 	server := &http.Server{Addr: addr}
 
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	// Регистрируем обработчик.
 	http.HandleFunc("/", handleFileSystem)
 
@@ -129,7 +132,7 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 
 // renderTemplate - вспомогательная функция для рендеринга HTML-шаблона.
 func renderTemplate(w http.ResponseWriter, data PageData) {
-	templateFile := "index.html"
+	templateFile := "templates/index.html"
 	tmpl, err := template.ParseFiles(templateFile)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("ошибка загрузки шаблона: %v", err), http.StatusInternalServerError)

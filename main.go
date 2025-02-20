@@ -113,8 +113,11 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Сортируем список.
+	// Сортируем список и переводим в кб/мб/гб
 	sortFileList(fileList, sortType)
+	for i := range fileList {
+		fileList[i].Size, fileList[i].Unit = convertSize(fileList[i].Size)
+	}
 
 	endTime := time.Since(startTime).String()
 
@@ -189,14 +192,14 @@ func listDirByReadDir(path string) ([]FileInfo, error) {
 			if val.IsDir() {
 				// Для директорий вычисляем размер рекурсивно.
 				size := getDirSize(newPath)
-				fileInfo.Size, fileInfo.Unit = convertSize(size)
+				fileInfo.Size = size
 			} else {
 				info, err := val.Info()
 				if err != nil {
 					fmt.Println("ошибка получения информации о файле:", err)
 					return
 				}
-				fileInfo.Size, fileInfo.Unit = convertSize(float64(info.Size()))
+				fileInfo.Size = float64(info.Size())
 			}
 
 			mu.Lock()

@@ -1,45 +1,48 @@
-document.getElementById('directoryForm').addEventListener('submit', function(event) {
+var _a;
+(_a = document.getElementById('directoryForm')) === null || _a === void 0 ? void 0 : _a.addEventListener('submit', function (event) {
     event.preventDefault();
-    const formData = new FormData(this);
-    const params = new URLSearchParams(formData).toString();
+    var formData = new FormData(this);
+    var params = new URLSearchParams(formData).toString();
     fetch('/?' + params, {
         method: 'GET'
-    }).then(response => response.text())
-      .then(html => {
-          document.body.innerHTML = html;
-          history.pushState(null, '', '/');
-      });
+    }).then(function (response) { return response.text(); })
+        .then(function (html) {
+        document.body.innerHTML = html;
+        history.pushState(null, '', '/');
+    });
 });
-
 function navigateTo(path) {
-    const sortType = document.getElementById('sort').value;
+    var sortType = document.getElementById('sort').value;
     fetch('/?root=' + encodeURIComponent(path) + '&sort=' + encodeURIComponent(sortType), {
         method: 'GET'
-    }).then(response => response.text())
-      .then(html => {
-          document.body.innerHTML = html;
-          history.pushState(null, '', '/');
-      });
+    }).then(function (response) { return response.text(); })
+        .then(function (html) {
+        document.body.innerHTML = html;
+        history.pushState(null, '', '/');
+    });
 }
-
 function goBack() {
-    const currentPath = document.querySelector('p').innerText.split(': ')[1];
-    const parentPath = currentPath.split('/').slice(0, -1).join('/');
-    const sortType = document.getElementById('sort').value;
-    fetch('/?root=' + encodeURIComponent(parentPath) + '&sort=' + encodeURIComponent(sortType), {
-        method: 'GET'
-    }).then(response => response.text())
-      .then(html => {
-          document.body.innerHTML = html;
-          history.pushState(null, '', '/');
-      });
+    var _a;
+    var currentPath = (_a = document.querySelector('p')) === null || _a === void 0 ? void 0 : _a.innerText.split(': ')[1];
+    if (currentPath) {
+        var parentPath = currentPath.split('/').slice(0, -1).join('/');
+        var sortType = document.getElementById('sort').value;
+        fetch('/?root=' + encodeURIComponent(parentPath) + '&sort=' + encodeURIComponent(sortType), {
+            method: 'GET'
+        }).then(function (response) { return response.text(); })
+            .then(function (html) {
+            document.body.innerHTML = html;
+            history.pushState(null, '', '/');
+        });
+    }
 }
 function gotoBegin() {
     fetch('/?back=true', {
         method: 'GET'
-    }).then(response => response.text())
-      .then(html => {
-          document.body.innerHTML = html;
-          history.pushState(null, '', '/');
-      });
+    }).then(function (response) { return response.text(); })
+        .then(function (html) {
+        document.body.innerHTML = html;
+        history.pushState(null, '', '/');
+    });
 }
+//# sourceMappingURL=script.js.map

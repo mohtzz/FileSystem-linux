@@ -11,7 +11,7 @@ var _a;
         history.pushState(null, '', '/');
     });
 });
-function navigateTo(path) {
+window.navigateTo = function(path) {
     var sortType = document.getElementById('sort').value;
     fetch('/?root=' + encodeURIComponent(path) + '&sort=' + encodeURIComponent(sortType), {
         method: 'GET'
@@ -21,7 +21,7 @@ function navigateTo(path) {
         history.pushState(null, '', '/');
     });
 }
-function goBack() {
+window.goBack = function() {
     var _a;
     var currentPath = (_a = document.querySelector('p')) === null || _a === void 0 ? void 0 : _a.innerText.split(': ')[1];
     if (currentPath) {
@@ -36,7 +36,7 @@ function goBack() {
         });
     }
 }
-function gotoBegin() {
+window.gotoBegin = function() {
     fetch('/?back=true', {
         method: 'GET'
     }).then(function (response) { return response.text(); })

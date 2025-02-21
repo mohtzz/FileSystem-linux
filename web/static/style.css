@@ -1,24 +1,153 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+.body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    background-color: #f4f4f9;
+    color: #333;
 }
-table {
+
+.title {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.text {
+    color: #555;
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+.form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Расстояние между элементами */
+}
+
+.form__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form__input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form__select {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    text-align: center;
+}
+
+.form__button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.form__button:hover,
+.form__select:hover {
+    background-color: #2980b9;
+}
+
+.button__back {
+    background-color: #95a5a6;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.button__back:hover {
+    background-color: #7f8c8d;
+}
+
+.button__begin {
+    background-color: #95a5a6;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.button__begin:hover {
+    background-color: #7f8c8d;
+}
+
+.table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-th, td {
+
+.table__cell {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px;
     text-align: left;
 }
-th {
-    background-color: #f2f2f2;
+
+.table__header {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
 }
-button {
-    margin-top: 10px;
+
+.table__row {
+    background-color: #f9f9f9;
+}
+
+.table__row:hover {
+    background-color: #f1f1f1;
+}
+
+.link {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.timer {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-top: 20px;
 }

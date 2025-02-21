@@ -63,6 +63,11 @@ function gotoBegin(): void {
 (window as any).gotoBegin = gotoBegin;
 
 function showLoader(): void {
+    const elements = document.querySelectorAll('button, a, input, select, textarea');
+    elements.forEach(element => {
+        (element as HTMLElement).classList.add('disabled');
+        (element as HTMLButtonElement).disabled = true;
+    });
     const loader = document.getElementById('loader');
     if (loader) {
         loader.style.display = 'block';
@@ -71,9 +76,14 @@ function showLoader(): void {
 (window as any).showLoader = showLoader;
 
 function hideLoader(): void {
+    const elements = document.querySelectorAll('button, a, input, select, textarea');
+    elements.forEach(element => {
+        (element as HTMLElement).classList.remove('disabled');
+        (element as HTMLButtonElement).disabled = false;
+    });
     const loader = document.getElementById('loader');
     if (loader) {
-        loader.style.display = 'none'; // Скрыть индикатор загрузки
+        loader.style.display = 'none';
     }
 }
 (window as any).hideLoader = hideLoader;

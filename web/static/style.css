@@ -171,3 +171,7 @@
     font-weight: bold;
     display: none;
 }
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}

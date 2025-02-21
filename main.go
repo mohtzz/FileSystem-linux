@@ -270,15 +270,15 @@ func convertSize(size float64) (float64, string) {
 	}
 	switch counter {
 	case 0:
-		value = "байтов"
+		value = "байт"
 	case 1:
-		value = "килобайтов"
+		value = "килобайт"
 	case 2:
-		value = "мегабайтов"
+		value = "мегабайт"
 	case 3:
-		value = "гигабайтов"
+		value = "гигабайт"
 	case 4:
-		value = "терабайтов"
+		value = "терабайт"
 	}
 	roundedSize := math.Round(size*10) / 10
 	return roundedSize, value

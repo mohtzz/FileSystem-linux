@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика</title>
+    <link rel="stylesheet" href="/web/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.js"></script>
+</head>
+<body class="body">
+    <h1 class="title">Статистика</h1>
+    <div id="chartContainer">
+        <canvas id="statsChart"></canvas>
+    </div>
+    <table class="table">
+        <thead>
+            <tr class="table__row">
+                <th class="table__header">ID</th>
+                <th class="table__header">Путь</th>
+                <th class="table__header">Размер</th>
+                <th class="table__header">Время выполнения</th>
+                <th class="table__header">Дата</th>
+            </tr>
+        </thead>
+        <tbody id="statsTableBody">
+        </tbody>
+    </table>
+    <script src="/web/static/stats.js"></script>
+</body>
+</html>

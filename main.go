@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -46,7 +48,7 @@ func startHTTPServer(addr string) *http.Server {
 	fs := http.FileServer(http.Dir("web/static"))
 	http.Handle("/web/static/", http.StripPrefix("/web/static/", fs))
 
-	// Регистрируем обработчик.
+	// Регистрируем обработчики.
 	http.HandleFunc("/", handleFileSystem)
 
 	// Запускаем сервер в отдельной горутине.
@@ -119,6 +121,7 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 		fileList[i].Size, fileList[i].Unit = convertSize(fileList[i].Size)
 	}
 
+	totalSize := getDirSize(dirPath)
 	endTime := time.Since(startTime).String()
 
 	// Создаем структуру данных для шаблона.
@@ -128,6 +131,20 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 		ErrorMsg: "",
 		LastPath: dirPath,
 	}
+
+	// Отправляем данные в PHP-скрипт для записи в БД
+	go func() {
+		data := map[string]interface{}{
+			"root":        dirPath,
+			"size":        totalSize,
+			"elapsedTime": endTime,
+		}
+		jsonData, _ := json.Marshal(data)
+		_, err := http.Post("http://localhost/writestat.php", "application/json", bytes.NewBuffer(jsonData))
+		if err != nil {
+			log.Println("Ошибка при отправке данных в БД:", err)
+		}
+	}()
 
 	// Отправляем ответ в формате HTML.
 	renderTemplate(w, data)

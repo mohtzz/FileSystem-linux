@@ -11,11 +11,33 @@ document.getElementById('directoryForm')?.addEventListener('submit', function(ev
       .then(html => {
           document.body.innerHTML = html;
           bindStatButton();
+          bindNavigationLinks();
+          bindBackButton();
           history.pushState(null, '', '/');
       }).finally(() => {
           hideLoader();
         });
 });
+
+function bindNavigationLinks() {
+    const links = document.querySelectorAll('.link');
+    links.forEach(link => {
+        link.addEventListener('click', function(event: Event) {
+            event.preventDefault();
+            const path = (event.target as HTMLElement).getAttribute('data-path');
+            if (path) {
+                navigateTo(path);
+            }
+        });
+    });
+}
+
+function bindBackButton() {
+    const backButton = document.querySelector('.button__back');
+    if (backButton) {
+        backButton.addEventListener('click', goBack);
+    }
+}
 
 function navigateTo(path: string): void {
     const sortType = (document.getElementById('sort') as HTMLSelectElement).value;
@@ -26,12 +48,13 @@ function navigateTo(path: string): void {
       .then(html => {
           document.body.innerHTML = html;
           bindStatButton();
+          bindNavigationLinks();
+          bindBackButton();
           history.pushState(null, '', '/');
       }).finally(() => {
         hideLoader();
         });
 }
-(window as any).navigateTo = navigateTo;
 
 function goBack(): void {
     const currentPath = document.querySelector('p')?.innerText.split(': ')[1];
@@ -45,28 +68,14 @@ function goBack(): void {
           .then(html => {
               document.body.innerHTML = html;
               bindStatButton();
+              bindNavigationLinks();
+              bindBackButton();
               history.pushState(null, '', '/');
           }).finally(() => {
             hideLoader();
             });
     }
 }
-(window as any).goBack = goBack;
-
-function gotoBegin(): void {
-    showLoader();
-    fetch('/?back=true', {
-        method: 'GET'
-    }).then(response => response.text())
-      .then(html => {
-          document.body.innerHTML = html;
-          bindStatButton();
-          history.pushState(null, '', '/');
-      }).finally(() => {
-        hideLoader();
-        });
-}
-(window as any).gotoBegin = gotoBegin;
 
 function showLoader(): void {
     const elements = document.querySelectorAll('button, a, input, select, textarea');
@@ -79,7 +88,6 @@ function showLoader(): void {
         loader.style.display = 'block';
     }
 }
-(window as any).showLoader = showLoader;
 
 function hideLoader(): void {
     const elements = document.querySelectorAll('button, a, input, select, textarea');
@@ -92,7 +100,6 @@ function hideLoader(): void {
         loader.style.display = 'none';
     }
 }
-(window as any).hideLoader = hideLoader;
 
 function bindStatButton() {
     const statButton = document.querySelector(".button__stats") as HTMLElement | null;
@@ -102,3 +109,10 @@ function bindStatButton() {
         });
     }
 }
+
+// Инициализация обработчиков при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    bindStatButton();
+    bindNavigationLinks();
+    bindBackButton();
+});

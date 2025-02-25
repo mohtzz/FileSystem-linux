@@ -76,10 +76,26 @@ $conn->close();
     td:hover {
         background-color: #f1f1f1;
     }
+    .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+    .back-button:hover {
+        background-color: #2980b9;
+    }
 </style>
 </head>
 <body>
     <h1 class="title">Статистика</h1>
+    <button class="back-button">Назад</button>
     <canvas id="myChart" width="400" height="200"></canvas>
     <table class="table">
         <thead>
@@ -105,6 +121,10 @@ $conn->close();
     </table>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const backButton = document.querySelector('.back-button');
+            backButton.addEventListener('click', function() {
+                window.history.back();
+            });
             const sizes = [];
             const elapsedTimes = [];
             const rows = document.querySelectorAll('#statsTableBody tr');

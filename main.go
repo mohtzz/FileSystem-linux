@@ -123,6 +123,7 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 
 	totalSize := getDirSize(dirPath)
 	endTime := time.Since(startTime).String()
+	statTime := time.Since(startTime).Seconds()
 
 	// Создаем структуру данных для шаблона.
 	data := PageData{
@@ -132,19 +133,21 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 		LastPath: dirPath,
 	}
 
-	// Отправляем данные в PHP-скрипт для записи в БД
-	go func() {
-		data := map[string]interface{}{
-			"root":        dirPath,
-			"size":        totalSize,
-			"elapsedTime": endTime,
-		}
-		jsonData, _ := json.Marshal(data)
-		_, err := http.Post("http://localhost/writestat.php", "application/json", bytes.NewBuffer(jsonData))
-		if err != nil {
-			log.Println("Ошибка при отправке данных в БД:", err)
-		}
-	}()
+	statData := map[string]interface{}{
+		"root":        dirPath,
+		"size":        totalSize,
+		"elapsedTime": statTime,
+	}
+	jsonData, err := json.Marshal(statData)
+	if err != nil {
+		log.Println("Ошибка при кодировании данных в JSON:", err)
+		return
+	}
+	_, err = http.Post("http://localhost/writestat.php", "application/json", bytes.NewBuffer(jsonData))
+	log.Printf("Отправляем данные: %+v\n", statData)
+	if err != nil {
+		log.Println("Ошибка при отправке данных на сервер:", err)
+	}
 
 	// Отправляем ответ в формате HTML.
 	renderTemplate(w, data)

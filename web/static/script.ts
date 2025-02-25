@@ -1,3 +1,5 @@
+bindStatButton();
+
 document.getElementById('directoryForm')?.addEventListener('submit', function(event: Event) {
     event.preventDefault();
     const formData = new FormData(this as HTMLFormElement);
@@ -8,6 +10,7 @@ document.getElementById('directoryForm')?.addEventListener('submit', function(ev
     }).then(response => response.text())
       .then(html => {
           document.body.innerHTML = html;
+          bindStatButton();
           history.pushState(null, '', '/');
       }).finally(() => {
           hideLoader();
@@ -22,6 +25,7 @@ function navigateTo(path: string): void {
     }).then(response => response.text())
       .then(html => {
           document.body.innerHTML = html;
+          bindStatButton();
           history.pushState(null, '', '/');
       }).finally(() => {
         hideLoader();
@@ -40,6 +44,7 @@ function goBack(): void {
         }).then(response => response.text())
           .then(html => {
               document.body.innerHTML = html;
+              bindStatButton();
               history.pushState(null, '', '/');
           }).finally(() => {
             hideLoader();
@@ -55,6 +60,7 @@ function gotoBegin(): void {
     }).then(response => response.text())
       .then(html => {
           document.body.innerHTML = html;
+          bindStatButton();
           history.pushState(null, '', '/');
       }).finally(() => {
         hideLoader();
@@ -87,3 +93,12 @@ function hideLoader(): void {
     }
 }
 (window as any).hideLoader = hideLoader;
+
+function bindStatButton() {
+    const statButton = document.querySelector(".button__stats") as HTMLElement | null;
+    if (statButton) {
+        statButton.addEventListener("click", function (){
+            window.location.href = "http://localhost/readstat.php";
+        });
+    }
+}

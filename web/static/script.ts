@@ -1,6 +1,33 @@
-bindStatButton();
+// Функция для привязки кнопки статистики
+function bindStatButton() {
+    const statButton = document.querySelector(".button__stats") as HTMLElement | null;
+    if (statButton) {
+        statButton.addEventListener("click", function () {
+            window.location.href = "http://localhost/readstat.php";
+        });
+    }
+}
 
-document.getElementById('directoryForm')?.addEventListener('submit', function(event: Event) {
+// Функция для привязки обработчика изменения сортировки
+function bindSortSelect() {
+    const sortSelect = document.getElementById('sort') as HTMLSelectElement | null;
+    if (sortSelect) {
+        // Восстанавливаем значение из localStorage
+        const savedSortType = localStorage.getItem('sortType');
+        if (savedSortType) {
+            sortSelect.value = savedSortType;
+        }
+
+        // Сохраняем значение в localStorage при изменении
+        sortSelect.addEventListener('change', function () {
+            localStorage.setItem('sortType', sortSelect.value);
+            console.log('Sort type saved:', sortSelect.value); // Отладка
+        });
+    }
+}
+
+// Функция для отправки формы
+document.getElementById('directoryForm')?.addEventListener('submit', function (event: Event) {
     event.preventDefault();
     const formData = new FormData(this as HTMLFormElement);
     const params = new URLSearchParams(formData as any).toString();
@@ -13,16 +40,18 @@ document.getElementById('directoryForm')?.addEventListener('submit', function(ev
           bindStatButton();
           bindNavigationLinks();
           bindBackButton();
+          bindSortSelect(); // Восстанавливаем выбор сортировки
           history.pushState(null, '', '/');
       }).finally(() => {
           hideLoader();
-        });
+      });
 });
 
+// Функция для привязки ссылок навигации
 function bindNavigationLinks() {
     const links = document.querySelectorAll('.link');
     links.forEach(link => {
-        link.addEventListener('click', function(event: Event) {
+        link.addEventListener('click', function (event: Event) {
             event.preventDefault();
             const path = (event.target as HTMLElement).getAttribute('data-path');
             if (path) {
@@ -32,6 +61,7 @@ function bindNavigationLinks() {
     });
 }
 
+// Функция для привязки кнопки "Назад"
 function bindBackButton() {
     const backButton = document.querySelector('.button__back');
     if (backButton) {
@@ -39,8 +69,10 @@ function bindBackButton() {
     }
 }
 
+// Функция для навигации по пути
 function navigateTo(path: string): void {
-    const sortType = (document.getElementById('sort') as HTMLSelectElement).value;
+    const sortType = localStorage.getItem('sortType') || 'asc'; // Используем сохраненное значение или значение по умолчанию
+    console.log('Navigating to:', path, 'with sort type:', sortType); // Отладка
     showLoader();
     fetch('/?root=' + encodeURIComponent(path) + '&sort=' + encodeURIComponent(sortType), {
         method: 'GET'
@@ -50,17 +82,20 @@ function navigateTo(path: string): void {
           bindStatButton();
           bindNavigationLinks();
           bindBackButton();
+          bindSortSelect(); // Восстанавливаем выбор сортировки
           history.pushState(null, '', '/');
       }).finally(() => {
-        hideLoader();
-        });
+          hideLoader();
+      });
 }
 
+// Функция для возврата на предыдущую директорию
 function goBack(): void {
     const currentPath = document.querySelector('p')?.innerText.split(': ')[1];
     if (currentPath) {
         const parentPath = currentPath.split('/').slice(0, -1).join('/');
-        const sortType = (document.getElementById('sort') as HTMLSelectElement).value;
+        const sortType = localStorage.getItem('sortType') || 'asc'; // Используем сохраненное значение или значение по умолчанию
+        console.log('Going back to:', parentPath, 'with sort type:', sortType); // Отладка
         showLoader();
         fetch('/?root=' + encodeURIComponent(parentPath) + '&sort=' + encodeURIComponent(sortType), {
             method: 'GET'
@@ -70,13 +105,15 @@ function goBack(): void {
               bindStatButton();
               bindNavigationLinks();
               bindBackButton();
+              bindSortSelect(); // Восстанавливаем выбор сортировки
               history.pushState(null, '', '/');
           }).finally(() => {
-            hideLoader();
-            });
+              hideLoader();
+          });
     }
 }
 
+// Функция для показа загрузчика
 function showLoader(): void {
     const elements = document.querySelectorAll('button, a, input, select, textarea');
     elements.forEach(element => {
@@ -89,6 +126,7 @@ function showLoader(): void {
     }
 }
 
+// Функция для скрытия загрузчика
 function hideLoader(): void {
     const elements = document.querySelectorAll('button, a, input, select, textarea');
     elements.forEach(element => {
@@ -101,18 +139,10 @@ function hideLoader(): void {
     }
 }
 
-function bindStatButton() {
-    const statButton = document.querySelector(".button__stats") as HTMLElement | null;
-    if (statButton) {
-        statButton.addEventListener("click", function (){
-            window.location.href = "http://localhost/readstat.php";
-        });
-    }
-}
-
 // Инициализация обработчиков при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     bindStatButton();
     bindNavigationLinks();
     bindBackButton();
+    bindSortSelect(); // Инициализация обработчика изменения сортировки
 });

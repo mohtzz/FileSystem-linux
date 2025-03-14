@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File System</title>
+    <link rel="stylesheet" href="/web/static/style.css">
+</head>
+<body class="body">
+    <h1 class="title">File System</h1>
+    {{if .LastPath}}
+    <p class="text">Текущий путь: {{.LastPath}}</p>
+    {{end}}
+    {{if .ErrorMsg}}
+    <p class="error">{{.ErrorMsg}}</p>
+    {{end}}
+    <form id="directoryForm" class="form">
+        <label for="root" class="form__label">Путь к директории:</label>
+        <input type="text" id="root" name="root" class="form__input" required value="/home">
+        <label for="sort" class="form__label">Тип сортировки:</label>
+        <select id="sort" name="sort" class="form__select">
+            <option value="asc">Возрастание</option>
+            <option value="desc">Убывание</option>
+        </select>
+        <button type="submit" class="form__button">Подтвердить</button>
+    </form>
+    <button class="button__back">Назад</button>
+    <button class="button__stats">Статистика</button>
+    <div id="loader" class="loader">Загрузка...</div>
+    <table class="table">
+        <thead>
+            <tr class="table__row">
+                <th class="table__header">Имя</th>
+                <th class="table__header">Размер</th>
+                <th class="table__header">Тип</th>
+                <th class="table__header">Путь</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .FileList}}
+            <tr class="table__row">
+                <td class="table__cell">
+                    {{if .IsDir}}
+                    <a href="javascript:void(0);" class="link" data-path="{{.Path}}">{{.Name}}</a>
+                    {{else}}
+                    {{.Name}}
+                    {{end}}
+                </td>
+                <td class="table__cell">{{.Size}} {{.Unit}}</td>
+                <td class="table__cell">{{if .IsDir}}Директория{{else}}Файл{{end}}</td>
+                <td class="table__cell">{{.Path}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    <p class="timer">Время выполнения программы: {{.EndTime}}</p>
+    <script src="/web/static/bundle.js"></script>
+</body>
+</html>

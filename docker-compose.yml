@@ -1,6 +1,8 @@
 services:
   apache_php:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-php
     ports:
       - "8080:80"
     volumes:
@@ -22,6 +24,24 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  
+  go_app:
+    build:
+      context: .
+      dockerfile: Dockerfile-go
+    ports:
+      - "9015:9015"
+    volumes:
+      - .:/app
+      - /app/node_modules  # Изолируем node_modules от хоста
+    depends_on:
+      - mysql_db
+    environment:
+      - DB_HOST=mysql_db
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+    restart: on-failure  # Добавляем автоматический перезапуск
 
 volumes:
   mysql_data:

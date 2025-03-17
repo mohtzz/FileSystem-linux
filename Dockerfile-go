@@ -1,0 +1,17 @@
+FROM node:18-bullseye
+
+# Установка Go
+RUN apt-get update && apt-get install -y wget
+RUN wget https://go.dev/dl/go1.21.1.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.21.1.linux-amd64.tar.gz && \
+    rm go1.21.1.linux-amd64.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+# Установка глобальных npm-пакетов
+RUN npm install -g typescript webpack webpack-cli
+
+WORKDIR /app
+
+# Копируем зависимости и устанавливаем их
+COPY package*.json ./
+RUN npm install --include=dev

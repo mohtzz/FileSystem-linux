@@ -1,7 +1,16 @@
 FROM php:8.2-apache
 
-# Установка Node.js и npm
+# Установка системных зависимостей
+RUN apt-get update && \
+    apt-get install -y \
+        wget \
+        curl \
+        gnupg && \
+    rm -rf /var/lib/apt/lists/*
+
+# Установка Node.js
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get update \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 

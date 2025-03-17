@@ -1,10 +1,15 @@
 <?php
 // Конфигурационный файл
 
-$servername = "localhost";
-$username = "arseny";
-$password = "qweqwe123!Q";
-$dbname = "filesystem_stat";
+// $servername = "localhost";
+// $username = "arseny";
+// $password = "qweqwe123!Q";
+// $dbname = "filesystem_stat";
+
+$servername = getenv('DB_HOST');
+$dbname = getenv('DB_NAME');
+$username = getenv('DB_USER');
+$password = getenv('DB_PASSWORD');
 
 $conn = null; // Инициализируем переменную соединения
 

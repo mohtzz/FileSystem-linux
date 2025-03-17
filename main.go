@@ -141,6 +141,7 @@ func handleFileSystem(w http.ResponseWriter, r *http.Request) {
 		log.Println("Ошибка при кодировании данных в JSON:", err)
 		return
 	}
+
 	_, err = http.Post(statURL, "application/json", bytes.NewBuffer(jsonData))
 	log.Printf("Отправляем данные: %+v\n", statData)
 	if err != nil {

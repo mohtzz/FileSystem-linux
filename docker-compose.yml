@@ -1,21 +1,19 @@
-version: '3.8'
-
 services:
-  app:
+  apache_php:
     build: .
     ports:
       - "8080:80"
     volumes:
       - ./web/php:/var/www/html
     depends_on:
-      - db
+      - mysql_db
     environment:
-      - DB_HOST=db
+      - DB_HOST=mysql_db
       - DB_NAME=${MYSQL_DATABASE}
       - DB_USER=${MYSQL_USER}
       - DB_PASSWORD=${MYSQL_PASSWORD}
 
-  db:
+  mysql_db:
     image: mysql:8.0
     volumes:
       - mysql_data:/var/lib/mysql

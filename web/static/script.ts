@@ -3,7 +3,7 @@ function bindStatButton() {
     const statButton = document.querySelector(".button__stats") as HTMLElement | null;
     if (statButton) {
         statButton.addEventListener("click", function () {
-            window.location.href = "http://localhost/readstat.php";
+            window.location.href = "http://localhost:8080/readstat.php";
         });
     }
 }

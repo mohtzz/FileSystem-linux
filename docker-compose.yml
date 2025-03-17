@@ -14,6 +14,23 @@ services:
       - DB_NAME=${MYSQL_DATABASE}
       - DB_USER=${MYSQL_USER}
       - DB_PASSWORD=${MYSQL_PASSWORD}
+    command: ["apache2-foreground"]
+
+  go_app:
+    build: .
+    ports:
+      - "9015:9015"
+    volumes:
+      - ./go_app:/app
+    working_dir: /app
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+    command: /app/entrypoint.sh
 
   db:
     image: mysql:8.0
